@@ -139,24 +139,10 @@ def resolve_command_port(explicit_port=None):
             raise RuntimeError(f"RELAY_PORT does not exist: {env_port}")
         return env_port
 
-    ports = find_ports()
-
-    if len(ports) == 1:
-        return ports[0]
-
-    if len(ports) == 0:
-        raise RuntimeError("No /dev/ttyUSB* device found")
-
-    raise RuntimeError(
-        "Multiple /dev/ttyUSB* devices found:\n"
-        + "\n".join(f"  {p}" for p in ports)
-        + "\nPlease specify port:\n"
-        + "  ./relay.sh /dev/ttyUSB0 1 on\n"
-        + "  ./relay.sh /dev/ttyUSB0 status\n"
-        + "or:\n"
-        + "  RELAY_PORT=/dev/ttyUSB0 ./relay.sh 1 on\n"
-        + "  RELAY_PORT=/dev/ttyUSB0 ./relay.sh status"
-    )
+    default_port = "/dev/ttyUSB0"
+    if not os.path.exists(default_port):
+        raise RuntimeError(f"Default serial port does not exist: {default_port}")
+    return default_port
 
 
 def print_usage():
@@ -165,10 +151,10 @@ def print_usage():
     print("      Open UI")
     print("")
     print("  ./relay.sh 1|2|3|4 on|off")
-    print("      Control relay using auto-detected /dev/ttyUSB*")
+    print("      Control relay using default port /dev/ttyUSB0")
     print("")
     print("  ./relay.sh status")
-    print("      Query relay status using auto-detected /dev/ttyUSB*")
+    print("      Query relay status using default port /dev/ttyUSB0")
     print("")
     print("  ./relay.sh /dev/ttyUSB0 1|2|3|4 on|off")
     print("      Control relay using specified serial port")
